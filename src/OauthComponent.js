@@ -12,19 +12,24 @@ function FacebookOauthComponent() {
 
 const GoogleOauthComponent = () => {
     const [responseData, setResponseData] = useState(null);
-    const clientId = 'client-key'
+    const clientId = '49790634779-dovdfpe3pveg6c4phldc5tp6upv726im.apps.googleusercontent.com'
     return (
         <>
             <GoogleOAuthProvider clientId={clientId}>
                 <GoogleLogin
                     onSuccess={(response) => {
                         const accessToken = response.credential;
-                        axios.get('http://localhost:8080/oauth/me/google', {
-                            params : {
-                                "accessToken" : accessToken
+                        const requestData = new URLSearchParams();
+                        requestData.append('accessToken', accessToken);
+
+                        axios.post('http://localhost:8080/public/auth/sign-in/google', requestData, {
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
                             }
-                        }).then(response => {
-                                setResponseData(response.data.result)
+                        })
+                            .then(response => {
+                                setResponseData(response.data.result);
+                                console.log(response);
                             })
                             .catch(error => {
                                 console.error('Error sending HTTP request:', error);
