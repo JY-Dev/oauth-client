@@ -2,13 +2,53 @@ import {GoogleLogin, GoogleOAuthProvider} from "@react-oauth/google";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-function FacebookOauthComponent() {
+const FacebookOauthComponent = () => {
+    const [isLoggedin, setIsLoggedin] = useState(false);
+
+    const onLoginClick = () => {
+        window.FB.login(function (response) {
+            const authResponse = response.authResponse;
+            const requestData = new URLSearchParams();
+            requestData.append('accessToken', authResponse.accessToken);
+            if(authResponse) {
+                axios.post('http://localhost:8080/public/auth/sign-in/facebook', requestData , {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                })
+                    .then(response => {
+                        // 성공 시 처리
+                        console.log(response);
+                    })
+                    .catch(error => {
+                        // 실패 시 처리
+                        console.error(error);
+                    })
+            }
+        });
+    };
+
+    useEffect(() => {
+        window.fbAsyncInit = () => {
+            window.FB.init({
+                appId            : '1279027846129707',
+                xfbml            : true,
+                version          : 'v18.0'
+            });
+        };
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) { return; }
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    }, []);
+
     return (
-        <div>
-            <h1>페이스북</h1>
-        </div>
+        <div><button onClick={onLoginClick}>Login with Facebook</button></div>
     );
-}
+};
 
 const GoogleOauthComponent = () => {
     const [responseData, setResponseData] = useState(null);
